@@ -27,63 +27,219 @@
   </head>
 
   <body>
-    <section class="section">
-    <div id="app">
-      <div v-for="vcfirm in vcfirms" class="firms">
 
-        <figure>
-          <img v-bind:src="vcfirm.gsx$logo.$t">
-        </figure>
 
-        <h1 class="is-size-3">{{ vcfirm.gsx$vcfirm.$t }}</h1>
+<div id="app">
 
-        <p>
-          {{ vcfirm.gsx$stage.$t }}
-        </p>
+    <header>
+        <div class="columns mx-2 my-3">
+            <div class="column is-one-third-desktop">
+                <input class="input" type="text" placeholder="Search" v-model="search">
+            </div>
 
-       <p>
-          {{ vcfirm.gsx$interest.$t }}
-        </p>
+            <div class="column is-one-third-desktop">
+                <!--                open/close collapse on button click-->
+                <button class="button"
+                        @click="filterModal = !filterModal">
+                    <span>Filter</span>
+                </button>
+            </div>
+        </div>
+    </header>
+    <!--    add is-active class when button click to show collapse menu-->
+    <div class="collapseItem has-background-light" :class="{'is-active':filterModal}">
+        <div class="columns mx-2 ">
+            <div class="column is-one-third-desktop">
+                <p><strong>Filter by Region:</strong></p>
+                <div class="scrollSection">
+                    <div v-for="item in filters.region">
+                        <label>
+                            <input type="checkbox" v-model="filterChecked.region" :value="item"/>
+                            {{item}}
+                        </label>
+                    </div>
+                </div>
 
-        <p>
-          {{ vcfirm.gsx$region.$t }} 
-        </p> 
-
-          <p>Visit <a v-bind:href="vcfirm.gsx$website.$t" target="_blank">
-            {{ vcfirm.gsx$vcfirm.$t }}</a> website to learn more.
-        </p>
-
-      <br>
-      </div>
+            </div>
+            <div class="column is-one-third-desktop">
+                <p><strong>Filter by Interest:</strong></p>
+                <div class="scrollSection">
+                    <div v-for="item in filters.interest">
+                        <label>
+                            <input type="checkbox" v-model="filterChecked.interest" :value="item"/>
+                            {{item}}
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="column is-one-third-desktop">
+                <p><strong>Filter by Stage:</strong></p>
+                <div class="scrollSection">
+                    <div v-for="item in filters.stage">
+                        <label>
+                            <input type="checkbox" v-model="filterChecked.stage" :value="item"/>
+                            {{item}}
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </section>
-  </body>
+    <div class="section">
+        <div class="app">
 
-  <script>
+            <div v-for="vcfirm in filteredVCfirms" class="firms">
+
+                <figure>
+                    <img v-bind:src="vcfirm.gsx$logo.$t">
+                </figure>
+
+                <h1 class="is-size-4">{{ vcfirm.gsx$vcfirm.$t }}</h1>
+
+                <p>
+                    <b>{{ vcfirm.gsx$region.$t }}</b>
+                </p>
+
+                <p>
+                    {{ vcfirm.gsx$interest.$t }}
+                </p>
+
+                <p>
+                    {{ vcfirm.gsx$stage.$t }}
+                </p>
+
+                <p>Visit <a v-bind:href="vcfirm.gsx$website.$t" target="_blank">
+                    {{ vcfirm.gsx$vcfirm.$t }}</a> website to learn more.
+                </p>
+
+                <br>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+<script>
     const url =
-      "https://spreadsheets.google.com/feeds/list/1-xGr-5yZsRobgk5WagmgfdqWBQWI4T57omR87q81DxY/2/public/values?alt=json";
+        "https://spreadsheets.google.com/feeds/list/1-xGr-5yZsRobgk5WagmgfdqWBQWI4T57omR87q81DxY/2/public/values?alt=json";
 
-    const { createApp, ref } = Vue;
+    const {createApp, ref} = Vue;
     const app = createApp({
-      data() {
-        //const somevalue = ref(10);
-        return {
-          vcfirms: null,
-          vclinks: null
-        };
-      },
-      mounted() {
-        axios
-          .get(url)
-          .then((response) => {
-            console.log(response.data.feed.entry);
-            this.vcfirms = response.data.feed.entry;
-          })
-          .catch((error) => {
-            console.log("error:", error);
-          });
-      },
-    });
+            data() {
+                return {
+                    vcfirms: null,
+                    search: null,
+                    filteredVCfirm: [],
+                    filterModal: false,
+                    filters: {
+                        region: [],
+                        interest: [],
+                        stage: []
+                    },
+                    filterChecked: {
+                        region: [],
+                        interest: [],
+                        stage: []
+                    }
+                };
+            },
+            mounted() {
+                axios
+                    .get(url)
+                    .then((response) => {
+                        this.vcfirms = response.data.feed.entry;
+                        if (this.vcfirms && this.vcfirms.length > 0) {
+                            this.assignFilter()
+                        }
+                    })
+                    .catch((error) => {
+                        console.log("error:", error);
+                    });
+
+            },
+            computed: {
+                // computed means it will look the search and the other parameter.
+                // if any params change filtered films will calculate
+                filteredVCfirms() {
+                    //if nothing in search send all vcfirms to filter
+                    if (!this.search) {
+                        return this.doFilter(this.vcfirms)
+                    }
+                    //else for each firm find the word in object with lowercase word
+                    var filtered = [];
+                    let query = this.search.toLowerCase();
+                    this.vcfirms.forEach(function (vcfirm) {
+                        var vcfirms = vcfirm.gsx$vcfirm.$t.toLowerCase();
+                        var stage = vcfirm.gsx$stage.$t.toLowerCase();
+                        var interest = vcfirm.gsx$interest.$t.toLowerCase();
+                        // if any vcfirms , stage or interest have search keyword store it
+                        if (
+                            (vcfirms.search(query) >= 0) ||
+                            (stage.search(query) >= 0) ||
+                            (interest.search(query) >= 0)
+                        ) {
+                            filtered.push(vcfirm);
+                        }
+                    });
+                    return this.doFilter(filtered);
+                }
+            },
+            methods: {
+                doFilter(items) {
+                    // after search return items check if any of checkbox is checked or not
+                    // if not checked return all
+                    if (this.filterChecked.region.length > 0 || this.filterChecked.stage.length > 0 || this.filterChecked.interest.length > 0) {
+                        // if any checkbox in region is check filter firms with the array
+                        if (this.filterChecked.region.length > 0) {
+                            items = items.filter(vcfirm => {
+                                var region = vcfirm.gsx$region.$t.toLowerCase();
+                                //Object.values make object value to in array
+                                //if this array have current vcfirm's region return true
+                                return Object.values(this.filterChecked.region).includes(region);
+                            })
+                        }
+                        if (this.filterChecked.stage.length > 0) {
+                            items = items.filter(vcfirm => {
+                                var stage = vcfirm.gsx$stage.$t.toLowerCase();
+                                return Object.values(this.filterChecked.stage).includes(stage);
+                            })
+                        }
+                        if (this.filterChecked.interest.length > 0) {
+                            items = items.filter(vcfirm => {
+                                var interest = vcfirm.gsx$interest.$t.toLowerCase().split(',');
+                                return Object.values(this.filterChecked.interest).filter(x => interest.includes(x)).length > 0;
+                            })
+                        }
+                        return items
+                    } else {
+                        return items
+                    }
+                },
+                //initially make the filter array
+                assignFilter() {
+                    this.vcfirms.forEach(vcfirm => {
+                        var region = vcfirm.gsx$region.$t.toLowerCase();
+                        var interests = vcfirm.gsx$interest.$t.toLowerCase().split(',');
+                        var stage = vcfirm.gsx$stage.$t.toLowerCase();
+                        if (!this.filters.region.includes(region)) {
+                            this.filters.region.push(region)
+                        }
+                        if (!this.filters.stage.includes(stage)) {
+                            this.filters.stage.push(stage)
+                        }
+                        interests.forEach(interest => {
+                            if (!this.filters.interest.includes(interest)) {
+                                this.filters.interest.push(interest)
+                            }
+                        })
+                    });
+                }
+            }
+
+
+        })
+    ;
     app.mount("#app");
-  </script>
+
+</script>
 </html>
