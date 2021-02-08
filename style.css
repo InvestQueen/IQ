@@ -1,4 +1,4 @@
-#app {
+.app {
     display: grid;
     grid-gap: 15px;
     grid-template-columns: repeat(auto-fit, 250px);
@@ -24,4 +24,47 @@
 
 .firms img {
     height: 250px;
+}
+
+
+.collapseItem{
+    opacity: 0;
+    height: 0;
+	transition: all 150ms ease;
+}
+ .collapseItem.is-active{
+	 opacity:1!important;
+	 height:200px;
+	 transition: all 150ms ease;
+	 overflow-y:auto;
+ }
+ .scrollSection{
+	 max-height:150px;
+	 overflow-y:auto;
+	     background: #ededed;
+		 margin-top:5px;
+		 margin-right:50px;
+    padding: 10px;
+    border-bottom: 1px solid #dfdddd;
+ }
+ .scrollSection::-webkit-scrollbar {
+  width: 7px;
+
+}
+
+
+
+/* Track */
+.scrollSection::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+.scrollSection::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+/* Handle on hover */
+.scrollSection::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
