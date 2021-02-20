@@ -47,6 +47,9 @@
     padding: 10px;
     border-bottom: 1px solid #dfdddd;
  }
+ .scrollSection label{
+     text-transform: capitalize;
+ }
  .scrollSection::-webkit-scrollbar {
   width: 7px;
 
