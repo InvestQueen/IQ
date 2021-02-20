@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <meta name="robots" content="noindex">
-  <meta name="googlebot" content="noindex">
-    
-    <title>IQ Web App</title>
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="robots" content="noindex">
+    <meta name="googlebot" content="noindex">
+
+    <title>Test App</title>
 
     <script
-      src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-      integrity="sha256-4+XzXVhsDmqanXGHaHvgh1gMQKX40OUvDEBTu8JcmNs="
-      crossorigin="anonymous"
+            src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+            integrity="sha256-4+XzXVhsDmqanXGHaHvgh1gMQKX40OUvDEBTu8JcmNs="
+            crossorigin="anonymous"
     ></script>
 
     <script src="https://cdn.jsdelivr.net/npm/vue@3.0.5"></script>
@@ -20,13 +20,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
 
     <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css"
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css"
     />
-    <link rel="stylesheet" href="./style.css" />
-  </head>
+    <link rel="stylesheet" href="./style.css"/>
+</head>
 
-  <body>
+<body>
 
 
 <div id="app">
@@ -41,7 +41,7 @@
                 <!--                open/close collapse on button click-->
                 <button class="button"
                         @click="filterModal = !filterModal">
-                    <span>Filter</span>
+                    <span>{{filterModal?'Hide Filter':'Filter'}}</span>
                 </button>
             </div>
         </div>
@@ -172,11 +172,13 @@
                         var vcfirms = vcfirm.gsx$vcfirm.$t.toLowerCase();
                         var stage = vcfirm.gsx$stage.$t.toLowerCase();
                         var interest = vcfirm.gsx$interest.$t.toLowerCase();
+                        var region = vcfirm.gsx$region.$t.toLowerCase();
                         // if any vcfirms , stage or interest have search keyword store it
                         if (
                             (vcfirms.search(query) >= 0) ||
                             (stage.search(query) >= 0) ||
-                            (interest.search(query) >= 0)
+                            (interest.search(query) >= 0) ||
+                            (region.search(query) >= 0)
                         ) {
                             filtered.push(vcfirm);
                         }
@@ -195,18 +197,18 @@
                                 var region = vcfirm.gsx$region.$t.toLowerCase();
                                 //Object.values make object value to in array
                                 //if this array have current vcfirm's region return true
-                                return Object.values(this.filterChecked.region).includes(region);
+                                return Object.values(this.filterChecked.region).filter(x => region.includes(x)).length > 0;
                             })
                         }
                         if (this.filterChecked.stage.length > 0) {
                             items = items.filter(vcfirm => {
                                 var stage = vcfirm.gsx$stage.$t.toLowerCase();
-                                return Object.values(this.filterChecked.stage).includes(stage);
+                                return Object.values(this.filterChecked.stage).filter(x => stage.includes(x)).length > 0;
                             })
                         }
                         if (this.filterChecked.interest.length > 0) {
                             items = items.filter(vcfirm => {
-                                var interest = vcfirm.gsx$interest.$t.toLowerCase().split(',');
+                                var interest = vcfirm.gsx$interest.$t.toLowerCase();
                                 return Object.values(this.filterChecked.interest).filter(x => interest.includes(x)).length > 0;
                             })
                         }
@@ -218,21 +220,26 @@
                 //initially make the filter array
                 assignFilter() {
                     this.vcfirms.forEach(vcfirm => {
+                        //tolowecase to make all small letter
                         var region = vcfirm.gsx$region.$t.toLowerCase();
-                        var interests = vcfirm.gsx$interest.$t.toLowerCase().split(',');
+                        var interest = vcfirm.gsx$interest.$t.toLowerCase();
                         var stage = vcfirm.gsx$stage.$t.toLowerCase();
-                        if (!this.filters.region.includes(region)) {
-                            this.filters.region.push(region)
+                        if (!this.filters.region.includes(region) && region) {
+                            //make string to array by separate by comma  then remove space in first of every item then concat with main array
+                            //like "usa, canada" => ["usa"," canada"] => ["usa","canada"] then join with region main array
+                            this.filters.region=[...this.filters.region,...region.split(',').map(item=>item.trim())]
                         }
-                        if (!this.filters.stage.includes(stage)) {
-                            this.filters.stage.push(stage)
+                        if (!this.filters.stage.includes(stage) && stage) {
+                            this.filters.stage=[...this.filters.stage,...stage.split(',').map(item=>item.trim())]
                         }
-                        interests.forEach(interest => {
-                            if (!this.filters.interest.includes(interest)) {
-                                this.filters.interest.push(interest)
-                            }
-                        })
+                        if (!this.filters.interest.includes(interest) && interest) {
+                            this.filters.interest=[...this.filters.interest,...interest.split(',').map(item=>item.trim())]
+                        }
                     });
+                    //set help to remove duplicate item
+                    this.filters.region=[...new Set(this.filters.region)].sort();
+                    this.filters.stage=[...new Set(this.filters.stage)].sort();
+                    this.filters.interest=[...new Set(this.filters.interest)].sort();
                 }
             }
 
