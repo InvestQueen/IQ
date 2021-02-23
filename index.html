@@ -34,12 +34,60 @@
 </head>
 
 <body>
+    
+    <section class="hero">
+        <div class="hero-head">
+         <nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation"
+              style="background-color:#ffffff;">
+           <div class="container mt-2">
+             <div class="navbar-brand ">
+               <a class="navbar-item is-size-4" href="https://investqueen.org">
+                 <img src="./apple-touch-icon.png" style="max-height: 40px;"> &nbsp;
+                 Invest Queen
+               </a>
+             </div>
+           
+             <div id="navbarBasicExample" class="navbar-menu">
+           
+               <div class="navbar-end has-text-right">
+                 <div class="navbar-item is-size-5">
+                  <p>Accelerators & Resources coming soon</p> &nbsp; &nbsp;
+              
+                   <div class="buttons" id="mobile-nav-button">
+                     <a class="button is-link has-text-white" href="mailto:contact@investqueen.org">
+                       <strong>Contact</strong>
+                     </a>
+                   </div>
+                 </div>
+               </div>
+             </div>
+           </div>
+        </nav>
+        </div>
+      
+        <div class="hero-body">
+            <br>
+            <br>
+          <div class="container has-text-centered">
+              <p class="is-size-4-desktop is-size-5-mobile">
+                The venture capital firms listed here are open to receiving pitches from the public.
+              </p>			
+              <br>
+              <p class="is-size-4-desktop is-size-5-mobile">
+                This website is powered by a Google Sheet. If you would like to contribute to the sheet please 
+                <a href="https://docs.google.com/spreadsheets/d/1-xGr-5yZsRobgk5WagmgfdqWBQWI4T57omR87q81DxY/edit?usp=sharing" target="_blank">
+                    click here.</a>
+              </p>	
+          </div>
+          </div>
+      </section>
 
 
 <div id="app">
 
     <header>
         <div class="columns mx-2 my-3">
+            <div class="column"></div>
             <div class="column is-one-third-desktop">
                 <input class="input" type="text" placeholder="Search" v-model="search">
             </div>
@@ -95,7 +143,7 @@
     <div class="section">
         <div class="app">
 
-            <div v-for="vcfirm in filteredVCfirms" class="firms">
+            <div v-for="vcfirm in filteredVCfirms" class="firms has-text-centered">
 
                 <figure>
                     <img v-bind:src="vcfirm.gsx$logo.$t">
